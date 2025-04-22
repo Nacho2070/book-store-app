@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  # ---------------------- DATABASE ----------------------
+
+  # BookBD
+  book_store_bd:
+    image: mysql:9.0
+    environment:
+      MYSQL_DATABASE: db_bookStore
+      MYSQL_USER: user123
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: RootPassword
+    restart: unless-stopped
+    ports:
+      - 3307:3306
