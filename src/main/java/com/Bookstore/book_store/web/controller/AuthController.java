@@ -1,7 +1,8 @@
 package com.Bookstore.book_store.web.controller;
 
 import com.Bookstore.book_store.web.payload.UserDTO;
-import com.Bookstore.book_store.web.service.UserService;
+import com.Bookstore.book_store.web.payload.UserLogInDTO;
+import com.Bookstore.book_store.web.service.UserAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,15 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final UserAuthService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> logIn(@RequestBody @Valid UserDTO userDTO) {
+    public ResponseEntity<String> logIn(@RequestBody @Valid UserLogInDTO userDTO) {
         String token = userService.logIn(userDTO);
         return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
-    @PostMapping("/logUp")
+    @PostMapping("/register")
     public ResponseEntity<UserDTO> logUp(@Valid @RequestBody UserDTO userDTO) {
         UserDTO user = userService.logUp(userDTO);
         return new ResponseEntity<>(user, HttpStatus.CREATED);

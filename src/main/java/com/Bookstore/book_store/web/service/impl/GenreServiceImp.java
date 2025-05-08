@@ -1,5 +1,6 @@
 package com.Bookstore.book_store.web.service.impl;
 
+import com.Bookstore.book_store.exceptions.APIException;
 import com.Bookstore.book_store.model.Book;
 import com.Bookstore.book_store.model.Genre;
 import com.Bookstore.book_store.web.payload.CategoryResponse;
@@ -59,7 +60,7 @@ public class GenreServiceImp implements GenreService {
     @Override
     public GenreDTO deleteGenre(Long genreId) {
         Genre genre = genreRepository.findById(genreId)
-                .orElseThrow(() -> new RuntimeException("Genre not found"));
+                .orElseThrow(() -> new APIException("Genre not found"));
 
         genreRepository.delete(genre);
 
@@ -71,7 +72,7 @@ public class GenreServiceImp implements GenreService {
 
         Optional<Genre> genreOptional = genreRepository.findByGenreName(genreDTO.getGenreName());
         if(genreOptional.isPresent()) {
-            throw new RuntimeException("Genre "+ genreDTO.getGenreName() +" already exists!");
+            throw new APIException("Genre "+ genreDTO.getGenreName() +" already exists!");
         }
 
         Genre genre = modelMapper.map(genreDTO, Genre.class);
@@ -85,10 +86,10 @@ public class GenreServiceImp implements GenreService {
     public GenreDTO updateGenre(Long genreId, GenreDTO genreDTO) {
 
         Genre genre = genreRepository.findById(genreId).orElseThrow(() ->
-                new RuntimeException("Genre "+ genreDTO.getGenreName() +" not found"));
+                new APIException("Genre "+ genreDTO.getGenreName() +" not found"));
 
         if(genreDTO.getGenreName().equals(genre.getGenreName())){
-            throw new RuntimeException("Genre "+ genreDTO.getGenreName() +" already exists!");
+            throw new APIException("Genre "+ genreDTO.getGenreName() +" already exists!");
         }
 
         genre.setGenreName(genreDTO.getGenreName());

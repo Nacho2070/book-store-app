@@ -13,4 +13,8 @@ public interface BookService {
     String deleteBook(Long id);
 
     BookDto updateBook(Long bookId, BookDto bookDto);
+
+    BookDto updateBookGenre(Long bookId, Long genreId);
+
+    BookResponse searchBookByKeyboard(String keyword,int pageNumber, String sortBy, int pageSize, String sortOrder);
 }

@@ -1,5 +1,6 @@
 package com.Bookstore.book_store.web.service.impl;
 
+import com.Bookstore.book_store.exceptions.APIException;
 import com.Bookstore.book_store.model.Book;
 import com.Bookstore.book_store.model.Cart;
 import com.Bookstore.book_store.model.ItemCart;
@@ -102,15 +103,15 @@ public class CartServiceImpl  implements CartService {
         ItemCart itemCart = itemCartRepository.findItemCartBycartIdAndBookId(cart.getCartId(),book.getBookId());
 
         if (itemCart != null) {
-            throw new RuntimeException("Product already exist in the cart!");
+            throw new APIException("Product already exist in the cart!");
         }
 
         if (book.getQuantity() == 0) {
-            throw new RuntimeException("Book have not stock");
+            throw new APIException("Book have not stock");
         }
 
         if (book.getQuantity() < quantity) {
-            throw new RuntimeException("Product " + book.getTitle() + " have not enough stock, please make a order with less than " + quantity);
+            throw new APIException("Product " + book.getTitle() + " have not enough stock, please make a order with less than " + quantity);
         }
 
 

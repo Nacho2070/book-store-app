@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
 
     Page<Book> findByGenre(Genre genre, Pageable pageable);
+
+    Page<Book> findByTitleLikeIgnoreCase(String keyword, Pageable pageable);
 }

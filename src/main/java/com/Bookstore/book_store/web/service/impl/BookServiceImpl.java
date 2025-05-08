@@ -1,5 +1,6 @@
 package com.Bookstore.book_store.web.service.impl;
 
+import com.Bookstore.book_store.exceptions.APIException;
 import com.Bookstore.book_store.model.Book;
 import com.Bookstore.book_store.model.Genre;
 import com.Bookstore.book_store.web.payload.BookDto;
@@ -60,7 +61,7 @@ public class BookServiceImpl implements BookService {
     public BookResponse searchByGenre(Long genreId ,int pageNumber, String sortBy, int pageSize,String sortOrder) {
 
         Genre genre = genreRepository.findById(genreId)
-                .orElseThrow(() -> new IllegalArgumentException("Genre not found"));
+                .orElseThrow(() -> new APIException("Genre not found"));
 
         Sort sort = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -72,7 +73,7 @@ public class BookServiceImpl implements BookService {
         List<Book> books = pageBook.getContent();
 
         if(books.isEmpty()){
-            throw new RuntimeException(genre.getGenreName() + " category does not have any products");
+            throw new APIException(genre.getGenreName() + " category does not have any products");
         }
 
         List<BookDto> bookDTOs = books.stream()
@@ -111,7 +112,7 @@ public class BookServiceImpl implements BookService {
                 Book bookSaved = bookRepository.save(book);
                 return modelMapper.map(bookSaved, BookDto.class);
          }else {
-             throw new RuntimeException("Book "+ bookDto.getTitle() +" already exists!");
+             throw new APIException("Book "+ bookDto.getTitle() +" already exists!");
          }
     }
 
@@ -119,14 +120,67 @@ public class BookServiceImpl implements BookService {
     public BookDto updateBook(Long bookId, BookDto bookDto) {
 
         Book book = bookRepository.findById(bookId).orElseThrow(() ->
-                new IllegalArgumentException("Book with id: "+ bookId +" not found!"));
-       try {
-           Book updatedBook = modelMapper.map(bookDto, book.getClass());
-           bookRepository.save(updatedBook);
-           return  modelMapper.map(updatedBook, BookDto.class);
+                new APIException("Book with id: "+ bookId +" not found!"));
+
+        try {
+            book.setTitle(bookDto.getTitle());
+            book.setAuthor(bookDto.getAuthor());
+            book.setDescription(bookDto.getDescription());
+            book.setPrice(bookDto.getPrice());
+            book.setImage(bookDto.getImage());
+            book.setQuantity(bookDto.getQuantity());
+
+            if( !book.getGenre().getGenreName().equals(bookDto.getGenre()) ){
+                Genre genre = genreRepository.findByGenreName(bookDto.getGenre()).orElseThrow(() ->
+                        new IllegalArgumentException("Genre not found"));
+                book.setGenre(genre);
+            }
+
+           bookRepository.save(book);
+           return  modelMapper.map(book, BookDto.class);
        }catch (Exception e){
            throw new RuntimeException(e);
        }
+    }
+
+    @Override
+    public BookDto updateBookGenre(Long bookId, Long genreId) {
+        Genre genre = genreRepository.findById(genreId).orElseThrow(() ->
+                new IllegalArgumentException("Genre not found"));
+        Book book = bookRepository.findById(bookId).orElseThrow(()->
+                new IllegalArgumentException("Book with id: "+ bookId +" not found!"));
+
+        book.setGenre(genre);
+        Book updatedBook = bookRepository.save(book);
+        return modelMapper.map(updatedBook, BookDto.class);
+    }
+
+    @Override
+    public BookResponse searchBookByKeyboard(String keyword, int pageNumber, String sortBy, int pageSize, String sortOrder) {
+
+        Sort sort = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Book> pageBook = bookRepository.findByTitleLikeIgnoreCase('%'+ keyword +'%',pageable);
+        List<Book> book = pageBook.getContent();
+        if (book.isEmpty()){
+            throw new APIException(keyword + " category does not have any products");
+        }
+        List<BookDto> bookDTOs = book.stream().map((bookFromBd)->
+                modelMapper.map(bookFromBd, BookDto.class))
+                .toList();
+
+        return BookResponse.builder()
+                .bookDTO(bookDTOs)
+                .pageNumber(pageable.getPageNumber())
+                .totalElements(pageBook.getTotalElements())
+                .totalPages(pageBook.getTotalPages())
+                .lastPage(pageBook.isLast())
+                .pageSize(pageBook.getSize())
+                .pageNumber(pageable.getPageNumber())
+                .build();
     }
 
     @Override
@@ -135,7 +189,7 @@ public class BookServiceImpl implements BookService {
             bookRepository.deleteById(id);
             return "Book deleted";
         }catch (Exception e){
-            throw new RuntimeException("Book not found");
+            throw new APIException("Book not found");
         }
     }
 

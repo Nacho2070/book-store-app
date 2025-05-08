@@ -1,6 +1,5 @@
 package com.Bookstore.book_store.web.payload;
 
-
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

@@ -43,11 +43,4 @@ public class User {
     )
     private List<Book> favoriteBooks = new ArrayList<>();
 
-    public void addRole(Role role) {
-        if(role == null) {
-            this.roles = new HashSet<>();
-        }
-        this.roles.add(role);
-    }
-
 }
