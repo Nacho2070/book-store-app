@@ -32,9 +32,9 @@ public class WebConfig{
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 //Auth endpoints
                                 .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/demo/user/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                                .requestMatchers("/demo/user/**").permitAll() //hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                                 .requestMatchers("/public/cart/**").permitAll()
-                                .requestMatchers(HttpMethod.POST,"/public/book/**").hasAnyAuthority("ROLE_ADMIN","ROLE_DEVELOPER")
+                                .requestMatchers(HttpMethod.POST,"/public/book/**").permitAll()//.hasAnyAuthority("ROLE_ADMIN","ROLE_DEVELOPER")
                                 .requestMatchers("/public/book/**").permitAll()
                                 .requestMatchers("/public/genre/**").permitAll()
                                 .anyRequest().authenticated()

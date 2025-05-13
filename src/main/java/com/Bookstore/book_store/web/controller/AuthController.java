@@ -1,5 +1,6 @@
 package com.Bookstore.book_store.web.controller;
 
+import com.Bookstore.book_store.web.payload.RegisterUserDTO;
 import com.Bookstore.book_store.web.payload.UserDTO;
 import com.Bookstore.book_store.web.payload.UserLogInDTO;
 import com.Bookstore.book_store.web.service.UserAuthService;
@@ -26,8 +27,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> logUp(@Valid @RequestBody UserDTO userDTO) {
-        UserDTO user = userService.logUp(userDTO);
+    public ResponseEntity<RegisterUserDTO> logUp(@Valid @RequestBody RegisterUserDTO userDTO) {
+        RegisterUserDTO user = userService.logUp(userDTO);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 

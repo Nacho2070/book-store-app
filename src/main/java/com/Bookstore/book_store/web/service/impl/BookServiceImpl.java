@@ -163,7 +163,13 @@ public class BookServiceImpl implements BookService {
                 : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        Page<Book> pageBook = bookRepository.findByTitleLikeIgnoreCase('%'+ keyword +'%',pageable);
+        Page<Book> pageBook = null;
+
+        if(keyword == null){
+            pageBook =  bookRepository.findAll(pageable);
+        }else {
+            pageBook = bookRepository.findByTitleLikeIgnoreCase('%'+ keyword +'%',pageable);
+        }
         List<Book> book = pageBook.getContent();
         if (book.isEmpty()){
             throw new APIException(keyword + " category does not have any products");

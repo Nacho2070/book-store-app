@@ -50,9 +50,9 @@ public class BookController {
         BookDto bookDTO = bookService.addNewBook(bookDto,genreId);
         return ResponseEntity.ok(bookDTO);
     }
-    @GetMapping("/keyword/{keyword}")
+    @GetMapping("/keyword")
     public ResponseEntity<BookResponse> getBookByKeyword(
-            @PathVariable String keyword,
+            @RequestParam (name = "keyword",required = false)String keyword,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER ,required = false) int pageNumber,
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) int pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BOOK_BY ,required = false) String sortBy,

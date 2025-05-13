@@ -6,6 +6,7 @@ import com.Bookstore.book_store.model.User;
 import com.Bookstore.book_store.utils.JwtUtils;
 import com.Bookstore.book_store.utils.UserAuthUtils;
 import com.Bookstore.book_store.web.payload.AppRole;
+import com.Bookstore.book_store.web.payload.RegisterUserDTO;
 import com.Bookstore.book_store.web.payload.UserDTO;
 import com.Bookstore.book_store.web.payload.UserLogInDTO;
 import com.Bookstore.book_store.web.repository.UserRepository;
@@ -40,7 +41,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     public String logIn(UserLogInDTO userDTO) {
 
-        Authentication authentication = this.userAuthUtils.isAuthenticated(userDTO.getMail(),userDTO.getPassword());
+        Authentication authentication = this.userAuthUtils.isAuthenticated(userDTO.getEmail(),userDTO.getPassword());
         log.info("current user: {}", authentication.getName(), authentication.getPrincipal());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -48,7 +49,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public UserDTO logUp(UserDTO userDTO) {
+    public RegisterUserDTO logUp(RegisterUserDTO userDTO) {
 
         Optional<User> userFromDB = userRepository.findByEmail(userDTO.getEmail());
 
@@ -90,7 +91,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
         newUser.setRoles(roles);
         User userSaved = userRepository.save(newUser);
-        return modelMapper.map(userSaved, UserDTO.class);
+        return modelMapper.map(userSaved, RegisterUserDTO.class);
     }
 
 }
