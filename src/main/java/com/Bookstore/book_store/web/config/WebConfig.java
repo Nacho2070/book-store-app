@@ -33,14 +33,16 @@ public class WebConfig{
                                 //Auth endpoints
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/demo/user/**").permitAll() //hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                                .requestMatchers(HttpMethod.GET,"/public/book/**").permitAll()
                                 .requestMatchers("/public/cart/**").permitAll()
-                                .requestMatchers(HttpMethod.POST,"/public/book/**").permitAll()//.hasAnyAuthority("ROLE_ADMIN","ROLE_DEVELOPER")
+
+                                .requestMatchers(HttpMethod.PUT,"/public/book/**").permitAll() //.hasAnyAuthority("ROLE_ADMIN","ROLE_DEVELOPER")
+                                .requestMatchers("/images/**").permitAll()
                                 .requestMatchers("/public/book/**").permitAll()
                                 .requestMatchers("/public/genre/**").permitAll()
                                 .anyRequest().authenticated()
                         )
                 .addFilterBefore(new JwtTokenFilter(jwtUtils), BasicAuthenticationFilter.class);
-
         return http.build();
     }
 

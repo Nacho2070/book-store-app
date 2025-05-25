@@ -21,7 +21,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UserAuthUtils {
+public class LoginUtils {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

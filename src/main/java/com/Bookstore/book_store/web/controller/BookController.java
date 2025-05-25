@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/public/book")
@@ -23,14 +26,15 @@ public class BookController {
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) int pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BOOK_BY  ,required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false)String sortOrder
-    ) {
+    )
+    {
         BookResponse bookResponse = bookService.findAllBooks(pageNumber,sortBy,pageSize,sortOrder);
         return ResponseEntity.ok(bookResponse);
     }
 
-    @GetMapping("/{genreId}")
+    @GetMapping("/searchByGenre")
     public ResponseEntity<BookResponse> searchAllByGenre(
-            @PathVariable Long genreId,
+            @RequestParam(name = "genreId") Long genreId,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER ,required = false) int pageNumber,
             @RequestParam(name = "pageSize",defaultValue = AppConstants.PAGE_SIZE,required = false) int pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_BOOK_BY ,required = false) String sortBy,
@@ -50,6 +54,7 @@ public class BookController {
         BookDto bookDTO = bookService.addNewBook(bookDto,genreId);
         return ResponseEntity.ok(bookDTO);
     }
+
     @GetMapping("/keyword")
     public ResponseEntity<BookResponse> getBookByKeyword(
             @RequestParam (name = "keyword",required = false)String keyword,
@@ -85,5 +90,11 @@ public class BookController {
         BookDto bookGenreUpdated = bookService.updateBookGenre(bookId,genreId);
         return new ResponseEntity<>(bookGenreUpdated, HttpStatus.OK);
     }
-
+    
+    @PutMapping("/{bookId}/image")
+    public ResponseEntity<BookDto> updateBookImage(@PathVariable @Valid Long bookId,
+                                                   @RequestParam("image") MultipartFile image) throws IOException {
+        BookDto bookGenreUpdated = bookService.updateBookImage(bookId,image);
+        return new ResponseEntity<>(bookGenreUpdated, HttpStatus.OK);
+    }
 }

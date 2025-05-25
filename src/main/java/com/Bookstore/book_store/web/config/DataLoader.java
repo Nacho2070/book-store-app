@@ -42,7 +42,8 @@ public class DataLoader implements CommandLineRunner {
             userRolRepository.saveAll(
                     List.of(
                             new Role(AppRole.USER),
-                            new Role(AppRole.ADMIN)
+                            new Role(AppRole.ADMIN),
+                            new Role(AppRole.DEVELOPER)
                     )
             );
         }

@@ -4,10 +4,9 @@ import com.Bookstore.book_store.exceptions.APIException;
 import com.Bookstore.book_store.model.Role;
 import com.Bookstore.book_store.model.User;
 import com.Bookstore.book_store.utils.JwtUtils;
-import com.Bookstore.book_store.utils.UserAuthUtils;
+import com.Bookstore.book_store.utils.LoginUtils;
 import com.Bookstore.book_store.web.payload.AppRole;
 import com.Bookstore.book_store.web.payload.RegisterUserDTO;
-import com.Bookstore.book_store.web.payload.UserDTO;
 import com.Bookstore.book_store.web.payload.UserLogInDTO;
 import com.Bookstore.book_store.web.repository.UserRepository;
 import com.Bookstore.book_store.web.repository.UserRolRepository;
@@ -21,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,14 +32,14 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final UserRolRepository rolRepository;
 
     private final ModelMapper modelMapper;
-    private final UserAuthUtils userAuthUtils;
+    private final LoginUtils loginUtils;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public String logIn(UserLogInDTO userDTO) {
 
-        Authentication authentication = this.userAuthUtils.isAuthenticated(userDTO.getEmail(),userDTO.getPassword());
+        Authentication authentication = this.loginUtils.isAuthenticated(userDTO.getEmail(),userDTO.getPassword());
         log.info("current user: {}", authentication.getName(), authentication.getPrincipal());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -65,7 +63,7 @@ public class UserAuthServiceImpl implements UserAuthService {
             Set<String> strRoles = userDTO.getRole();
             Set<Role> roles = new HashSet<>();
 
-            if (roles == null) {
+            if (strRoles == null) {
                 rolRepository.findByRoleName(AppRole.USER).orElseThrow(() ->
                         new APIException("Role does not exist"));
             } else {
@@ -81,9 +79,14 @@ public class UserAuthServiceImpl implements UserAuthService {
                                     new APIException("Role does not exist"));
                             roles.add(userRol);
                             break;
+                        case "DEVELOPER":
+                            Role developerRol = rolRepository.findByRoleName(AppRole.DEVELOPER).orElseThrow(() ->
+                                    new APIException("Role does not exist"));
+                            roles.add(developerRol);
+                            break;
                         default:
                             Role defaultRole = rolRepository.findByRoleName(AppRole.USER).orElseThrow(() ->
-                                    new APIException("Role does not exist"));
+                                    new APIException("Error to fetch role"));
                             roles.add(defaultRole);
                     }
                 });

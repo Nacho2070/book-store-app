@@ -8,16 +8,20 @@ import com.Bookstore.book_store.web.payload.BookResponse;
 import com.Bookstore.book_store.web.repository.BookRepository;
 import com.Bookstore.book_store.web.repository.GenreRepository;
 import com.Bookstore.book_store.web.service.BookService;
+import com.Bookstore.book_store.web.service.FileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -28,6 +32,13 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final GenreRepository genreRepository;
     private final ModelMapper modelMapper;
+    private final FileService fileService;
+
+    @Value("${project.image}")
+    private String path;
+
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
 
     @Override
     public BookResponse findAllBooks(int pageNumber, String sortBy, int pageSize, String sortOrder) {
@@ -43,6 +54,7 @@ public class BookServiceImpl implements BookService {
                     .map(books -> {
                         BookDto bookDto = modelMapper.map(books, BookDto.class);
                         bookDto.setGenre(books.getGenre().getGenreName());
+                        bookDto.setImage( constructImage( books.getImage()) );
                         return bookDto;
                     })
                     .toList();
@@ -77,7 +89,12 @@ public class BookServiceImpl implements BookService {
         }
 
         List<BookDto> bookDTOs = books.stream()
-                .map(book -> modelMapper.map(book, BookDto.class))
+                .map(book -> {
+                    BookDto bookDto = modelMapper.map(book, BookDto.class);
+                    bookDto.setImage( constructImage( book.getImage()) );
+                    return bookDto;
+                }
+                        )
                 .toList();
 
         return BookResponse.builder()
@@ -174,8 +191,13 @@ public class BookServiceImpl implements BookService {
         if (book.isEmpty()){
             throw new APIException(keyword + " category does not have any products");
         }
-        List<BookDto> bookDTOs = book.stream().map((bookFromBd)->
-                modelMapper.map(bookFromBd, BookDto.class))
+        List<BookDto> bookDTOs = book.stream()
+                .map( bookFromBd -> {
+                    BookDto bookDto = modelMapper.map(bookFromBd, BookDto.class);
+                    bookDto.setImage( constructImage(bookFromBd.getImage()) );
+
+                    return bookDto;
+                })
                 .toList();
 
         return BookResponse.builder()
@@ -188,7 +210,10 @@ public class BookServiceImpl implements BookService {
                 .pageNumber(pageable.getPageNumber())
                 .build();
     }
-
+    private String constructImage(String imageName) {
+        return imageName.endsWith("/") ? imageBaseUrl + imageName :
+                imageBaseUrl + "/" + imageName;
+    }
     @Override
     public String deleteBook(Long id) {
         try {
@@ -199,4 +224,15 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    @Override
+    public BookDto updateBookImage(Long bookId, MultipartFile image) throws IOException {
+        Book bookFromBd = bookRepository.findById(bookId)
+                .orElseThrow(() -> new APIException("Book not found"));
+        String fileImage = fileService.uploadImage(path,image);
+        log.info("File Image {}", fileImage);
+        bookFromBd.setImage(fileImage);
+
+        Book updatedBook = bookRepository.save(bookFromBd);
+        return modelMapper.map(updatedBook, BookDto.class);
+    }
 }

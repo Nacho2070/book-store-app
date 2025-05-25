@@ -31,11 +31,16 @@ public class CartController {
         return new ResponseEntity<>(cartDTO,HttpStatus.CREATED);
     }
 
-    @GetMapping("/carts")
+    @GetMapping("/cart")
     public ResponseEntity<List<CartDTO> > getCarts()
     {
         List<CartDTO> cartDTO = cartService.getCarts();
         return ResponseEntity.ok(cartDTO);
     }
-
+    @DeleteMapping("/cart/{cartId}/bookId/{bookId}")
+    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId, @PathVariable Long bookId)
+    {
+        String status = cartService.deleteBookFromCart(cartId,bookId);
+        return new ResponseEntity<>(status,HttpStatus.OK);
+    }
 }

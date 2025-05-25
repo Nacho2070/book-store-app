@@ -12,4 +12,6 @@ public interface CartService {
     String createOrUpdateCart(List<ItemCartDTO> cartItems);
 
     CartDTO addBookToCart(Long bookId, Integer quantity);
+
+    String deleteBookFromCart(Long cartId, Long bookId);
 }
